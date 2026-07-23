@@ -1,0 +1,44 @@
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="//unpkg.com/layui@2.9.9/dist/css/layui.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href= "/style.css">
+
+    <title>MIDI Analytics</title>
+
+</head>
+
+<body>
+
+    <div id="main">
+
+        <div id="chart"></div>
+
+        <div id="info">
+            <span>Notes</span>
+            <p id="notes">0</p>
+            <span>Key</span>
+            <p id="key">_</p>
+            <span>Pedal</span>
+            <p id="pedal"></p>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/midi.js@0.3.1/lib/midi.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js" integrity="sha512-d35gaU1E+gZdyLbQUGODiOEXqH+Q4pj9BmkFS3xwTrmw7DustRm+tfpfVQaywn9l+qCsd5dsJ4A+11s/OisvFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="//unpkg.com/layui@2.9.9/dist/layui.js"></script>
+
+    <script src="player.js"></script>
+
+</body>
+
+</html>

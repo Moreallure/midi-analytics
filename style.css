@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital@1&family=Roboto+Condensed&family=Roboto+Mono:wght@500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+#settings {
+    height: auto;
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    padding: 2% 2%;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2%;
+}
+
+#settings h2 {
+    margin-bottom: 8px;
+}
+
+#settings .layui-form-checkbox div {
+    color: #fff;
+}
+
+#good, #bad {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    display: none;
+}
+
+#bad a {
+    color: #31bdec;
+    text-decoration: underline;
+}
+
+#settings .help a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#settings .help a p {
+    margin-left: 4px;
+    color: #fff;
+}
+
+#info {
+    position: absolute;
+    right: 0;
+    top: 0;
+    text-align: right;
+    font-family: 'Roboto Mono', monospace;
+    padding: 10px;
+}
+
+#info span {
+    font-size: 1em;
+}
+
+#info p {
+    font-size: 2em;
+}
+
+#main {
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+#chart {
+    width: 100%;
+    height: 100%;
+}

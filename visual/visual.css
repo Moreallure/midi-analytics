@@ -1,0 +1,11 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.note {
+    background-color: black;
+    margin: 20px;
+    position: absolute;
+    bottom: 0;
+}
