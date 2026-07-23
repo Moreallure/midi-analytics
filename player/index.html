@@ -6,15 +6,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <script>document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"</script>
+
     <link href="//unpkg.com/layui@2.9.9/dist/css/layui.css" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href= "/style.css">
 
-    <title>MIDI Analytics</title>
+    <title>MIDI Analytics — Player</title>
 
 </head>
 
 <body>
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand__text">
+                <h1>MIDI <em>Analytics</em></h1>
+            </div>
+
+        </div>
+
+        <nav class="nav-links">
+            <a class="nav-link" href="/">Analytics</a>
+            <a class="nav-link nav-link--active" href="/player/">Player</a>
+        </nav>
+
+        <button class="icon-btn" id="play-pause" type="button" aria-label="Play">
+            <svg class="icon-play" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5v14l11-7z" fill="currentColor"/>
+            </svg>
+            <svg class="icon-pause" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" fill="currentColor"/>
+            </svg>
+        </button>
+
+    </header>
 
     <div id="main">
 

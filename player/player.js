@@ -140,9 +140,30 @@ function showToast(message) {
 }
 
 MIDI.Player.loadFile(`music/${musicName}.mid`, () => {
+    showToast(`${musicName}.mid loaded`);
+});
 
-    showToast(`${musicName}.mid loaded, click anywhere to start`)
+const playPauseBtn = document.getElementById("play-pause");
+function setPlaying(playing) {
+    playPauseBtn.classList.toggle("playing", playing);
+    playPauseBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
+}
 
+// ponytail: track paused vs fresh so we use resume() (preserves position)
+// instead of start() (which can restart) after a pause.
+let paused = false;
+
+playPauseBtn.addEventListener("click", () => {
+    if (MIDI.Player.playing) {
+        MIDI.Player.pause();
+        paused = true;
+        setPlaying(false);
+    } else {
+        if (paused) MIDI.Player.resume();
+        else MIDI.Player.start();
+        paused = false;
+        setPlaying(true);
+    }
 });
 
 MIDI.Player.addListener((event) => {
@@ -157,12 +178,9 @@ MIDI.Player.addListener((event) => {
 
     update()
 
+    if (event.end && event.now >= event.end) {
+        paused = false;
+        setPlaying(false);
+    }
+
 });
-
-document.body.addEventListener("click", () => {
-
-    if (MIDI.Player.playing) return;
-
-    MIDI.Player.start();
-
-})
