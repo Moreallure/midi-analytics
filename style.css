@@ -42,6 +42,23 @@
     text-decoration: underline;
 }
 
+#midiDevice {
+    background: #1a1a1a;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 6px 10px;
+    border-radius: 2px;
+    font-size: 14px;
+    font-family: 'Roboto Condensed', sans-serif;
+    cursor: pointer;
+    max-width: 200px;
+}
+
+#midiDevice:focus {
+    outline: none;
+    border-color: #16b777;
+}
+
 #settings .help a {
     display: flex;
     align-items: center;

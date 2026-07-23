@@ -98,27 +98,23 @@ function update() {
 
 }
 
-function initMidi() {
+let currentDevice = null
 
-    const device = WebMidi.inputs[0];
+function attachListeners(device) {
 
-    if (!device) {
+    if (currentDevice) {
 
-        // layui.layer.msg("No MIDI connection found! Refresh the page to try again.")
+        currentDevice.removeListener("noteon")
 
-        document.querySelector("#bad").style.display = "flex"
-
-        return
-
-    } else {
-
-        // layui.layer.msg(`MIDI device "${WebMidi.inputs[0].name}" connected!`)
-
-        document.querySelector("#good").style.display = "flex"
-
-        document.querySelector("#good p").textContent = `"${WebMidi.inputs[0].name}" Connected`
+        currentDevice.removeListener("controlchange")
 
     }
+
+    currentDevice = device
+
+    updateStatus()
+
+    if (!device) return
 
     device.addListener("noteon", event => {
 
@@ -169,6 +165,68 @@ function initMidi() {
         lastNote = new Date()
 
     })
+
+}
+
+function updateStatus() {
+
+    const good = document.querySelector("#good")
+
+    const bad = document.querySelector("#bad")
+
+    if (currentDevice) {
+
+        good.style.display = "flex"
+
+        bad.style.display = "none"
+
+        document.querySelector("#good p").textContent = `"${currentDevice.name}" Connected`
+
+    } else {
+
+        good.style.display = "none"
+
+        bad.style.display = "flex"
+
+    }
+
+}
+
+function refreshDeviceList() {
+
+    const select = document.getElementById("midiDevice")
+
+    if (!select) return
+
+    const previouslySelectedId = localStorage.getItem("midiDevice")
+
+    select.innerHTML = '<option value="">None</option>'
+
+    WebMidi.inputs.forEach(input => {
+
+        const option = document.createElement("option")
+
+        option.value = input.id
+
+        option.textContent = input.name
+
+        select.appendChild(option)
+
+    })
+
+    let toSelect = null
+
+    if (previouslySelectedId) {
+        toSelect = WebMidi.inputs.find(i => i.id === previouslySelectedId)
+    }
+
+    if (!toSelect && WebMidi.inputs.length > 0) {
+        toSelect = WebMidi.inputs[0]
+    }
+
+    select.value = toSelect ? toSelect.id : ""
+
+    attachListeners(toSelect)
 
 }
 
@@ -284,9 +342,37 @@ myChart.setOption({
 
 window.addEventListener("resize", myChart.resize);
 
+document.getElementById("midiDevice").addEventListener("change", (e) => {
+
+    const deviceId = e.target.value
+
+    const device = WebMidi.inputs.find(i => i.id === deviceId)
+
+    if (device) {
+
+        localStorage.setItem("midiDevice", deviceId)
+
+    } else {
+
+        localStorage.removeItem("midiDevice")
+
+    }
+
+    attachListeners(device)
+
+})
+
 WebMidi
     .enable()
-    .then(initMidi)
+    .then(() => {
+
+        refreshDeviceList()
+
+        WebMidi.addListener("connected", refreshDeviceList)
+
+        WebMidi.addListener("disconnected", refreshDeviceList)
+
+    })
     .catch(err => alert(err));
 
 if (localStorage.getItem("selected")) {
