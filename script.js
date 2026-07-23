@@ -35,6 +35,10 @@ const keyDisplay = document.getElementById("key");
 const pedalDisplay = document.getElementById("pedal");
 const rateDisplay = document.getElementById("rate");
 
+const musicalKeyDisplay = document.getElementById("musical-key");
+const musicalKeyToggle = document.querySelector('.check-group input[value="musical-key"]');
+const musicalKey = new MusicalKeyEstimator();
+
 let noteTimes = []
 function updateRate() {
     const now = Date.now()
@@ -179,6 +183,12 @@ function onMidiMessage(event) {
     update()
 
     keyDisplay.textContent = keyNames[note-1].split("\n")[0]
+
+    if (musicalKeyToggle.checked) {
+        musicalKey.addNote(event.data[1])
+        const est = musicalKey.estimate()
+        if (est) musicalKeyDisplay.textContent = est
+    }
 
     noteTimes.push(Date.now())
     updateRate()
@@ -395,6 +405,13 @@ document.querySelectorAll(".check-group input[type=checkbox]").forEach((box) => 
 pedalGlowToggle.addEventListener("change", () => {
     if (pedalGlowToggle.checked) flashPedalGlow()
     else document.body.classList.remove("pedal-active")
+})
+
+musicalKeyToggle.addEventListener("change", () => {
+    if (musicalKeyToggle.checked) {
+        musicalKey.reset()
+        musicalKeyDisplay.textContent = "—"
+    }
 })
 
 document.getElementById("display-select").addEventListener("change", (event) => {

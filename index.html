@@ -108,7 +108,8 @@
 
             <div class="check-group">
                 <label class="check"><input type="checkbox" value="notes" checked><span>Notes</span></label>
-                <label class="check"><input type="checkbox" value="key" checked><span>Key</span></label>
+                <label class="check"><input type="checkbox" value="key" checked><span>Last Key</span></label>
+                <label class="check"><input type="checkbox" value="musical-key"><span>Musical Key</span></label>
                 <label class="check"><input type="checkbox" value="pedal" checked><span>Pedal</span></label>
             </div>
 
@@ -140,8 +141,12 @@
                 <p id="notes">0</p>
             </div>
             <div class="stat" data-stat="key">
-                <span>Last key</span>
+                <span>Last Key</span>
                 <p id="key">_</p>
+            </div>
+            <div class="stat" data-stat="musical-key">
+                <span>Musical Key</span>
+                <p id="musical-key">—</p>
             </div>
             <div class="stat" data-stat="pedal">
                 <span>Pedal</span>
@@ -177,6 +182,7 @@
     <script src="/lib/echarts.min.js"></script>
     <script src="/lib/math.min.js"></script>
 
+    <script src="musical-key.js"></script>
     <script src="script.js"></script>
 
 </body>
