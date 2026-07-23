@@ -29,6 +29,7 @@ let lastNote
 let midiAccess
 
 let pedalDownTime
+let temporarilyPedal = 0
 
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
@@ -110,6 +111,8 @@ function initData() {
 
     }
 
+    if (displayingData == "Temporarily") temporarilyPedal = 0
+
     update()
     updateInfo()
 
@@ -117,7 +120,8 @@ function initData() {
 
 function updateInfo () {
 
-    pedalDisplay.textContent = formatTime(fullData[displayingData][0] && fullData[displayingData][0].pedal)
+    const pedal = displayingData == "Temporarily" ? temporarilyPedal : (fullData[displayingData][0] && fullData[displayingData][0].pedal)
+    pedalDisplay.textContent = formatTime(pedal)
 
 }
 
@@ -155,6 +159,7 @@ function onMidiMessage(event) {
                 if (!fullData[type][0]) fullData[type][0] = { pedal: 0, date: 0 }
                 fullData[type][0].pedal += duration
             }
+            if (displayingData == "Temporarily") temporarilyPedal += duration
             updateInfo()
             pedalDownTime = undefined
         }
@@ -222,6 +227,7 @@ function success(access) {
 }
 
 function formatTime(milliseconds) {
+    if (!Number.isFinite(milliseconds)) return "0s"; // ponytail: guard non-number input (e.g. "Just Played" has no pedal slot)
     if (milliseconds < 60000) {
         return parseFloat((milliseconds / 1000).toFixed(0)) + "s";
     } else if (milliseconds < 3600000) {
