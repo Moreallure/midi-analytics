@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script>document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"</script>
+    <script>document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark"</script>
 
     <link rel="stylesheet" type="text/css" href="style.css">
 
@@ -146,6 +146,10 @@
             <div class="stat" data-stat="pedal">
                 <span>Pedal</span>
                 <p id="pedal"></p>
+            </div>
+            <div class="stat" data-stat="rate">
+                <span>Notes/s</span>
+                <p id="rate">0</p>
             </div>
         </div>
 

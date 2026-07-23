@@ -33,9 +33,23 @@ let pedalDownTime
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
 const pedalDisplay = document.getElementById("pedal");
+const rateDisplay = document.getElementById("rate");
+
+let noteTimes = []
+function updateRate() {
+    const now = Date.now()
+    noteTimes = noteTimes.filter(t => now - t < 1000)
+    rateDisplay.textContent = noteTimes.length
+}
 
 const pedalGlowToggle = document.getElementById("pedal-glow");
+let pedalGlowTimer
 const setPedalGlow = (pressed) => document.body.classList.toggle("pedal-active", pressed && pedalGlowToggle.checked);
+const flashPedalGlow = () => {
+    document.body.classList.add("pedal-active")
+    clearTimeout(pedalGlowTimer)
+    pedalGlowTimer = setTimeout(() => document.body.classList.remove("pedal-active"), 500)
+};
 
 const toastEl = document.getElementById("toast");
 let toastTimer
@@ -164,7 +178,10 @@ function onMidiMessage(event) {
 
     update()
 
-    keyDisplay.textContent = keyNames[note-1].split("\n")[0]
+    keyDisplay.textContent = keyNames[note-1]
+
+    noteTimes.push(Date.now())
+    updateRate()
 
 }
 
@@ -266,6 +283,7 @@ function autoSave() {
 }
 
 setInterval(autoSave, saveRate);
+setInterval(updateRate, 250);
 
 const myChart = echarts.init(document.getElementById("chart"), null, {
     renderer: "canvas",
@@ -375,7 +393,8 @@ document.querySelectorAll(".check-group input[type=checkbox]").forEach((box) => 
 })
 
 pedalGlowToggle.addEventListener("change", () => {
-    if (!pedalGlowToggle.checked) document.body.classList.remove("pedal-active")
+    if (pedalGlowToggle.checked) flashPedalGlow()
+    else document.body.classList.remove("pedal-active")
 })
 
 document.getElementById("display-select").addEventListener("change", (event) => {
