@@ -164,7 +164,7 @@ function onMidiMessage(event) {
 
     update()
 
-    keyDisplay.textContent = keyNames[note-1]
+    keyDisplay.textContent = keyNames[note-1].split("\n")[0]
 
 }
 
