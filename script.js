@@ -1,10 +1,18 @@
 const saveRate = 10
 
+// MIDI note number for A0 (lowest piano key). Piano keys span MIDI 21 (A0) .. 108 (C8).
+const MIDI_A0 = 21
+// Offset converting a MIDI note number into a 1-based piano-key index (1..88).
+const DATA_OFFSET = MIDI_A0 - 1
+
 let count = 0
 let data = []
 
 let lastNote
 let lastPedal
+
+let midiAccess
+let midiInputs
 
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
@@ -68,7 +76,7 @@ function initData() {
 
     update()
 
-    updateInfo
+    updateInfo()
 
 }
 
@@ -88,9 +96,9 @@ function update() {
         ]
     });
 
-    total = 0
+    let total = 0
 
-    data.map(i => total += i.value)
+    data.forEach(i => total += i.value)
 
     notesDisplay.textContent = total
 
@@ -140,7 +148,7 @@ function success(access) {
                 if (event.data[0] !== 144 || event.data[2] == 0) return;
                 // layui.layer.msg(event.data[1]);
 
-                const note = event.data[1] - 20;
+                const note = event.data[1] - DATA_OFFSET;
 
                 if (recordingData.includes(displayingData) || displayingData == "Temporarily") {
 
@@ -148,7 +156,7 @@ function success(access) {
 
                 }
 
-                for (type of recordingData) {
+                for (const type of recordingData) {
 
                     if (!fullData[type][note]) fullData[type][note] = 0
 
@@ -245,17 +253,15 @@ function formatTime(milliseconds) {
 
 function checkDate() {
 
-    if (!fullData.Daily[0]) return
-
     const now = new Date()
 
-    if (new Date(fullData.Daily[0].date).getDay() !== now.getDay()) {
+    if (fullData.Daily[0] && new Date(fullData.Daily[0].date).getDay() !== now.getDay()) {
         fullData.Daily = []
         updateDate()
         initData()
     }
 
-    if (new Date(fullData.Monthly[0].date).getMonth() !== now.getMonth()) {
+    if (fullData.Monthly[0] && new Date(fullData.Monthly[0].date).getMonth() !== now.getMonth()) {
         fullData.Monthly = []
         updateDate()
         initData()
@@ -265,7 +271,7 @@ function checkDate() {
 
 function updateDate() {
 
-    for (type of recordingData) {
+    for (const type of recordingData) {
 
         if (!fullData[type][0]) {
             fullData[type][0] = { pedal: 0, date: 0 }

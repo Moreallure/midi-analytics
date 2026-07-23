@@ -2,6 +2,11 @@ const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
 const pedalDisplay = document.getElementById("pedal");
 
+// MIDI note number for A0 (lowest piano key). Piano keys span MIDI 21 (A0) .. 108 (C8).
+const MIDI_A0 = 21
+// Offset converting a MIDI note number into a 1-based piano-key index (1..88).
+const DATA_OFFSET = MIDI_A0 - 1
+
 let data = []
 
 const keyNames = [
@@ -66,9 +71,9 @@ function update() {
         ]
     });
 
-    total = 0
+    let total = 0
 
-    data.map(i => total += i.value)
+    data.forEach(i => total += i.value)
 
     notesDisplay.textContent = total
 
@@ -142,9 +147,9 @@ MIDI.Player.addListener((event) => {
 
     const note = event.note
 
-    data[note-20].value += 1
+    data[note - DATA_OFFSET].value += 1
 
-    keyDisplay.textContent = keyNames[note-21].split("\n")[0]
+    keyDisplay.textContent = keyNames[note - DATA_OFFSET - 1].split("\n")[0]
 
     update()
 
