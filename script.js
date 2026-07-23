@@ -98,79 +98,140 @@ function update() {
 
 }
 
-function initMidi() {
+navigator.requestMIDIAccess({sysex:false}).then(success, () => {layui.layer.msg("Failed")});
 
-    const device = WebMidi.inputs[0];
+function setupEventHandler() {
 
-    if (!device) {
-
-        // layui.layer.msg("No MIDI connection found! Refresh the page to try again.")
-
-        document.querySelector("#bad").style.display = "flex"
-
-        return
-
-    } else {
-
-        // layui.layer.msg(`MIDI device "${WebMidi.inputs[0].name}" connected!`)
-
-        document.querySelector("#good").style.display = "flex"
-
-        document.querySelector("#good p").textContent = `"${WebMidi.inputs[0].name}" Connected`
-
+    let inputs = [];
+    const iter = midiAccess.inputs.values();
+    for (let o = iter.next(); !o.done; o = iter.next()) {
+        inputs.push(o.value);
     }
 
-    device.addListener("noteon", event => {
+    for (let port = 0; port < inputs.length; port++) {
+        inputs[port].onmidimessage = function() {};
+    }
 
-        const note = keyNames.findIndex(i => i.includes(event.note.identifier)) + 1;
+    midiInputs = inputs;
+}
 
-        if (recordingData.includes(displayingData) || displayingData == "Temporarily") {
+function success(access) {
 
-            data[note].value ++
+    midiAccess = access;
+
+    midiAccess.onstatechange = function(event) {
+
+        const port = event.port;
+
+        if (port.state == "connected") {
+
+            layui.layer.msg(`MIDI device "${port.name}" connected!`)
+
+            document.querySelector("#bad").style.display = "none"
+            document.querySelector("#good").style.display = "flex"
+            document.querySelector("#good p").textContent = `"${port.name}" Connected`
 
         }
 
-        for (type of recordingData) {
+        if (port.type == "input") {
 
-            if (!fullData[type][note]) fullData[type][note] = 0
+            port.onmidimessage = function (event) {
 
-            fullData[type][note] ++
+                if (event.data[0] !== 144 || event.data[2] == 0) return;
+                // layui.layer.msg(event.data[1]);
 
-        }
+                const note = event.data[1] - 20;
 
-        update()
+                if (recordingData.includes(displayingData) || displayingData == "Temporarily") {
 
-        keyDisplay.textContent = event.note.identifier
+                    data[note].value ++
 
-    })
-
-    device.addListener("controlchange", event => {
-
-        if (event.value) {
-
-            lastPedal = new Date()
-
-        } else {
-
-            for (type of recordingData) {
-
-                if (!fullData[type][0]) {
-                    fullData[type][0] = { pedal: 0, date: 0 }
                 }
 
-                fullData[type][0].pedal += (new Date() - lastPedal)
+                for (type of recordingData) {
 
-            }
+                    if (!fullData[type][note]) fullData[type][note] = 0
 
-            updateInfo()
+                    fullData[type][note] ++
+
+                }
+
+                update()
+
+                keyDisplay.textContent = keyNames[note-1]
+
+            };
 
         }
 
-        lastNote = new Date()
+    };
 
-    })
-
+    setupEventHandler();
 }
+
+//     if (!device) {
+
+//         layui.layer.msg("No MIDI connection found! Refresh the page to try again.")
+
+//         document.querySelector("#bad").style.display = "flex"
+
+//         return
+
+//     } else {
+
+//     }
+
+//     device.addListener("noteon", event => {
+
+//         const note = keyNames.findIndex(i => i.includes(event.note.identifier)) + 1;
+
+//         if (recordingData.includes(displayingData) || displayingData == "Temporarily") {
+
+//             data[note].value ++
+
+//         }
+
+//         for (type of recordingData) {
+
+//             if (!fullData[type][note]) fullData[type][note] = 0
+
+//             fullData[type][note] ++
+
+//         }
+
+//         update()
+
+//         keyDisplay.textContent = event.note.identifier
+
+//     })
+
+//     device.addListener("controlchange", event => {
+
+//         if (event.value) {
+
+//             lastPedal = new Date()
+
+//         } else {
+
+//             for (type of recordingData) {
+
+//                 if (!fullData[type][0]) {
+//                     fullData[type][0] = { pedal: 0, date: 0 }
+//                 }
+
+//                 fullData[type][0].pedal += (new Date() - lastPedal)
+
+//             }
+
+//             updateInfo()
+
+//         }
+
+//         lastNote = new Date()
+
+//     })
+
+// }
 
 function formatTime(milliseconds) {
     if (milliseconds < 60000) {
@@ -284,11 +345,6 @@ myChart.setOption({
 
 window.addEventListener("resize", myChart.resize);
 
-WebMidi
-    .enable()
-    .then(initMidi)
-    .catch(err => alert(err));
-
 if (localStorage.getItem("selected")) {
     document.querySelector(`option[value="${localStorage.getItem("selected")}"]`).selected = true
     displayingData = localStorage.getItem("selected")
@@ -336,7 +392,7 @@ layui.use(() => {
 
     document.querySelector(".layui-btn").addEventListener("click", () => {
 
-        if (window.confirm(`Are you sure you want to delete all the data?`)) {
+        // if (window.confirm(`Are you sure you want to delete all the data?`)) {
 
             // fullData[displayingData] = []
 
@@ -344,7 +400,7 @@ layui.use(() => {
 
             initData()
 
-        }
+        // }
 
     })
 

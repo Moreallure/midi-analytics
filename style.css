@@ -31,10 +31,13 @@
 }
 
 #good, #bad {
-    display: flex;
     align-items: center;
     gap: 5px;
     display: none;
+}
+
+#bad {
+    display: flex;
 }
 
 #bad a {
