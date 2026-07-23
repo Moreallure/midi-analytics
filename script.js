@@ -28,9 +28,14 @@ let lastNote
 
 let midiAccess
 
+let pedalDownTime
+
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
 const pedalDisplay = document.getElementById("pedal");
+
+const pedalGlowToggle = document.getElementById("pedal-glow");
+const setPedalGlow = (pressed) => document.body.classList.toggle("pedal-active", pressed && pedalGlowToggle.checked);
 
 const toastEl = document.getElementById("toast");
 let toastTimer
@@ -120,55 +125,73 @@ function update() {
 
 navigator.requestMIDIAccess({sysex:false}).then(success, () => {showToast("Failed")});
 
+function onMidiMessage(event) {
+
+    if (event.data[0] === 176 && event.data[1] === 64) {
+        const pressed = event.data[2] > 0
+        if (pressed) {
+            pedalDownTime = Date.now()
+        } else if (pedalDownTime) {
+            const duration = Date.now() - pedalDownTime
+            for (const type of recordingData) {
+                if (!fullData[type][0]) fullData[type][0] = { pedal: 0, date: 0 }
+                fullData[type][0].pedal += duration
+            }
+            updateInfo()
+            pedalDownTime = undefined
+        }
+        setPedalGlow(pressed)
+        return
+    }
+
+    if (event.data[0] !== 144 || event.data[2] == 0) return;
+
+    const note = event.data[1] - DATA_OFFSET;
+
+    if (recordingData.includes(displayingData) || displayingData == "Temporarily") {
+
+        data[note].value ++
+
+    }
+
+    for (const type of recordingData) {
+
+        if (!fullData[type][note]) fullData[type][note] = 0
+
+        fullData[type][note] ++
+
+    }
+
+    update()
+
+    keyDisplay.textContent = keyNames[note-1]
+
+}
+
+function attachInput(port) {
+
+    if (port.state != "connected" || port.type != "input") return
+
+    showToast(`MIDI device "${port.name}" connected!`)
+
+    document.querySelector("#bad").style.display = "none"
+    document.querySelector("#good").style.display = "flex"
+    document.querySelector("#good p").textContent = `"${port.name}" Connected`
+
+    port.onmidimessage = onMidiMessage
+
+}
+
 function success(access) {
 
     midiAccess = access;
 
     midiAccess.onstatechange = function(event) {
-
-        const port = event.port;
-
-        if (port.state == "connected") {
-
-            showToast(`MIDI device "${port.name}" connected!`)
-
-            document.querySelector("#bad").style.display = "none"
-            document.querySelector("#good").style.display = "flex"
-            document.querySelector("#good p").textContent = `"${port.name}" Connected`
-
-        }
-
-        if (port.type == "input") {
-
-            port.onmidimessage = function (event) {
-
-                if (event.data[0] !== 144 || event.data[2] == 0) return;
-
-                const note = event.data[1] - DATA_OFFSET;
-
-                if (recordingData.includes(displayingData) || displayingData == "Temporarily") {
-
-                    data[note].value ++
-
-                }
-
-                for (const type of recordingData) {
-
-                    if (!fullData[type][note]) fullData[type][note] = 0
-
-                    fullData[type][note] ++
-
-                }
-
-                update()
-
-                keyDisplay.textContent = keyNames[note-1]
-
-            };
-
-        }
-
+        if (event.port.state == "connected") attachInput(event.port)
     };
+
+    midiAccess.inputs.forEach(attachInput);
+
 }
 
 function formatTime(milliseconds) {
@@ -257,7 +280,7 @@ function chartAxisOption() {
             data: keyNames,
             axisLine: { lineStyle: { color: c.axisLine } },
             axisTick: { show: false },
-            axisLabel: { color: c.axisLabel, fontSize: 10, fontFamily: "JetBrains Mono, monospace", interval: 0 }
+            axisLabel: { color: c.axisLabel, fontSize: 10, fontFamily: "JetBrains Mono, monospace", interval: "auto" }
         },
         yAxis: {
             type: "value",
@@ -349,6 +372,10 @@ document.querySelectorAll(".check-group input[type=checkbox]").forEach((box) => 
     box.addEventListener("change", apply)
     apply()
 
+})
+
+pedalGlowToggle.addEventListener("change", () => {
+    if (!pedalGlowToggle.checked) document.body.classList.remove("pedal-active")
 })
 
 document.getElementById("display-select").addEventListener("change", (event) => {

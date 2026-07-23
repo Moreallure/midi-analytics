@@ -25,6 +25,9 @@
     --tooltip-border: rgba(255, 255, 255, 0.2);
     --tooltip-text: #e8edf2;
     --tooltip-accent: #ffffff;
+    --glow-edge: rgba(255, 255, 255, 0.5);
+    --glow-halo: rgba(255, 255, 255, 0.16);
+    --glow-inset: rgba(255, 255, 255, 0.06);
     --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
     --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
@@ -53,6 +56,9 @@
     --tooltip-border: rgba(0, 0, 0, 0.15);
     --tooltip-text: #1a1a1a;
     --tooltip-accent: #000000;
+    --glow-edge: rgba(0, 0, 0, 0.32);
+    --glow-halo: rgba(0, 0, 0, 0.12);
+    --glow-inset: rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -468,6 +474,23 @@ body {
     flex-direction: column;
     min-height: 100vh;
     position: relative;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    box-shadow: inset 0 0 0 0 transparent;
+    transition: box-shadow 0.4s ease;
+}
+
+body.pedal-active::after {
+    box-shadow:
+        inset 0 0 0 1px var(--glow-edge),
+        inset 0 0 60px var(--glow-halo),
+        inset 0 0 180px var(--glow-inset);
 }
 
 #info {
