@@ -6,9 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="//unpkg.com/layui@2.9.9/dist/css/layui.css" rel="stylesheet">
+    <script>document.documentElement.dataset.theme = localStorage.getItem("theme") || "dark"</script>
 
-    <link rel="stylesheet" type="text/css" href= "style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 
     <title>MIDI Analytics</title>
 
@@ -16,121 +16,154 @@
 
 <body>
 
-    <div id="settings">
+    <header class="topbar">
 
-        <div>
+        <div class="brand">
 
-            <h2>Recording Data to:</h2>
-
-            <div class="layui-form">
-                <input type="checkbox" title="Total" lay-skin="tag" checked>
-                <input type="checkbox" title="Monthly" lay-skin="tag" checked>
-                <input type="checkbox" title="Daily" lay-skin="tag" checked>
-                <input type="checkbox" title="Custom" lay-skin="tag">
+            <div class="brand__text">
+                <h1>MIDI <em>Analytics</em></h1>
             </div>
 
         </div>
 
-        <div>
-
-            <h2>Displaying Data:</h2>
-
-            <div class="layui-form">
-                <select>
-                    <option value="Total">All</option>
-                    <option value="Monthly">This Month</option>
-                    <option value="Daily">Today</option>
-                    <option value="Temporarily">Just Played</option>
-                </select>
-              </div>
-
-        </div>
-
-        <div>
-
-            <h2>Accessories:</h2>
-
-            <div class="layui-form">
-                <input type="checkbox" title="Notes" checked>
-                <input type="checkbox" title="Key" checked>
-                <input type="checkbox" title="Pedal" checked>
-            </div>
-
-        </div>
-
-        <div>
-
-            <div class="layui-form">
-                <button class="delete layui-btn layui-btn-primary layui-border-red">Erase All Data</button>
-              </div>
-
-        </div>
-
-        <div>
+        <div class="status">
 
             <div id="good">
-
-                <svg fill="#16b777" height="30px" width="30px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <svg height="30px" width="30px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21.82 13.030l-1.002-1.002c-0.185-0.185-0.484-0.185-0.668 0l-6.014 6.013-2.859-2.882c-0.186-0.185-0.484-0.185-0.67 0l-1.002 1.003c-0.185 0.185-0.185 0.484 0 0.668l4.193 4.223c0.185 0.184 0.484 0.184 0.668 0l7.354-7.354c0.186-0.185 0.186-0.484 0-0.669zM16 3c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13zM16 26c-5.522 0-10-4.478-10-10 0-5.523 4.478-10 10-10 5.523 0 10 4.477 10 10 0 5.522-4.477 10-10 10z"></path>
                 </svg>
-
                 <p>"PIANO" Connected</p>
-
             </div>
 
             <div id="bad">
-
-                <svg height="30px" width="30px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#ffb800" stroke-width="2"/>
-                    <path d="M12 8L12 13" stroke="#ffb800" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M12 16V15.9888" stroke="#ffb800" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-
                 <p>No MIDI device found,</p>
-
                 <a href="">retry</a>
-
             </div>
 
         </div>
 
-        <div class="help">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="12" y1="2" x2="12" y2="5"/>
+                    <line x1="12" y1="19" x2="12" y2="22"/>
+                    <line x1="2" y1="12" x2="5" y2="12"/>
+                    <line x1="19" y1="12" x2="22" y2="12"/>
+                    <line x1="4.9" y1="4.9" x2="7" y2="7"/>
+                    <line x1="17" y1="17" x2="19.1" y2="19.1"/>
+                    <line x1="4.9" y1="19.1" x2="7" y2="17"/>
+                    <line x1="17" y1="7" x2="19.1" y2="4.9"/>
+                </g>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+            </svg>
+        </button>
 
-            <a href="javascript:" id="help">
+        <button class="help-btn" id="help" type="button">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zM7.92 9.234v.102a.5.5 0 0 0 .5.5h.997a.499.499 0 0 0 .499-.499c0-1.29.998-1.979 2.34-1.979 1.308 0 2.168.689 2.168 1.67 0 .928-.482 1.359-1.686 1.91l-.344.154C11.379 11.54 11 12.21 11 13.381v.119a.5.5 0 0 0 .5.5h.997a.499.499 0 0 0 .499-.499c0-.516.138-.723.55-.912l.345-.155c1.445-.654 2.529-1.514 2.529-3.39v-.103c0-1.978-1.72-3.441-4.164-3.441-2.478 0-4.336 1.428-4.336 3.734zm2.58 7.757c0 .867.659 1.509 1.491 1.509.85 0 1.509-.642 1.509-1.509 0-.867-.659-1.491-1.509-1.491-.832 0-1.491.624-1.491 1.491z"/>
+            </svg>
+            <span>Help</span>
+        </button>
 
-                <svg fill="#16b777" height="27px" width="27px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zM7.92 9.234v.102a.5.5 0 0 0 .5.5h.997a.499.499 0 0 0 .499-.499c0-1.29.998-1.979 2.34-1.979 1.308 0 2.168.689 2.168 1.67 0 .928-.482 1.359-1.686 1.91l-.344.154C11.379 11.54 11 12.21 11 13.381v.119a.5.5 0 0 0 .5.5h.997a.499.499 0 0 0 .499-.499c0-.516.138-.723.55-.912l.345-.155c1.445-.654 2.529-1.514 2.529-3.39v-.103c0-1.978-1.72-3.441-4.164-3.441-2.478 0-4.336 1.428-4.336 3.734zm2.58 7.757c0 .867.659 1.509 1.491 1.509.85 0 1.509-.642 1.509-1.509 0-.867-.659-1.491-1.509-1.491-.832 0-1.491.624-1.491 1.491z"/>
-                </svg>
+    </header>
 
-                <p>Help</p>
+    <section class="panel" id="settings">
 
-            </a>
+        <div class="panel__group">
+
+            <h2>Record to</h2>
+
+            <div class="tag-group" id="record-tags">
+                <label class="tag"><input type="checkbox" value="Total" checked><span>Total</span></label>
+                <label class="tag"><input type="checkbox" value="Monthly" checked><span>Monthly</span></label>
+                <label class="tag"><input type="checkbox" value="Daily" checked><span>Daily</span></label>
+            </div>
 
         </div>
 
-    </div>
+        <div class="panel__group">
 
-    <div id="main">
+            <h2>Display</h2>
+
+            <div class="select-wrap">
+                <select id="display-select">
+                    <option value="Total">All time</option>
+                    <option value="Monthly">This month</option>
+                    <option value="Daily">Today</option>
+                    <option value="Temporarily">Just played</option>
+                </select>
+                <svg class="select-wrap__chevron" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+        </div>
+
+        <div class="panel__group">
+
+            <h2>Show</h2>
+
+            <div class="check-group">
+                <label class="check"><input type="checkbox" value="notes" checked><span>Notes</span></label>
+                <label class="check"><input type="checkbox" value="key" checked><span>Key</span></label>
+                <label class="check"><input type="checkbox" value="pedal" checked><span>Pedal</span></label>
+            </div>
+
+        </div>
+
+        <div class="panel__group panel__group--end">
+
+            <h2>Danger zone</h2>
+
+            <button class="delete" type="button">Erase All Data</button>
+
+        </div>
+
+    </section>
+
+    <main id="main">
+
+        <div id="info">
+            <div class="stat" data-stat="notes">
+                <span>Notes</span>
+                <p id="notes">0</p>
+            </div>
+            <div class="stat" data-stat="key">
+                <span>Last key</span>
+                <p id="key">_</p>
+            </div>
+            <div class="stat" data-stat="pedal">
+                <span>Pedal</span>
+                <p id="pedal"></p>
+            </div>
+        </div>
 
         <div id="chart"></div>
 
-        <div id="info">
-            <span>Notes</span>
-            <p id="notes">0</p>
-            <span>Key</span>
-            <p id="key">_</p>
-            <span>Pedal</span>
-            <p id="pedal"></p>
-        </div>
+    </main>
 
+    <div class="modal" id="modal" aria-hidden="true">
+        <div class="modal__backdrop" data-close></div>
+        <div class="modal__dialog" role="dialog" aria-modal="true" aria-label="Help">
+            <div class="modal__head">
+                <h3>Help</h3>
+                <button class="modal__close" type="button" data-close aria-label="Close">
+                    <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3 L13 13 M13 3 L3 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <iframe class="modal__frame" id="modal-frame" title="Help"></iframe>
+        </div>
     </div>
 
-    <script src="//unpkg.com/layui@2.9.9/dist/layui.js"></script>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="/lib/echarts.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script> -->
     <script src="/lib/math.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js" integrity="sha512-d35gaU1E+gZdyLbQUGODiOEXqH+Q4pj9BmkFS3xwTrmw7DustRm+tfpfVQaywn9l+qCsd5dsJ4A+11s/OisvFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
 
     <script src="script.js"></script>
 

@@ -5,21 +5,43 @@ const MIDI_A0 = 21
 // Offset converting a MIDI note number into a 1-based piano-key index (1..88).
 const DATA_OFFSET = MIDI_A0 - 1
 
-let count = 0
+// ponytail: chart colors live in CSS vars so the theme toggle restyles the canvas too.
+function chartColors() {
+    const s = getComputedStyle(document.documentElement)
+    const v = (n) => s.getPropertyValue(n).trim()
+    return {
+        barWhite: v("--bar-white"),
+        barBlack: v("--bar-black"),
+        axisLine: v("--chart-axis-line"),
+        axisLabel: v("--chart-axis-label"),
+        split: v("--chart-split"),
+        tooltipBg: v("--tooltip-bg"),
+        tooltipBorder: v("--tooltip-border"),
+        tooltipText: v("--tooltip-text"),
+        tooltipAccent: v("--tooltip-accent")
+    }
+}
+
 let data = []
 
 let lastNote
-let lastPedal
 
 let midiAccess
-let midiInputs
 
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
 const pedalDisplay = document.getElementById("pedal");
 
-let fullData = JSON.parse(localStorage.getItem("notes")) || { Total: [], Monthly: [], Daily: [], Temporarily: [], Custom: [] }
-// fullData = { Total: [], Monthly: [], Daily: [] }
+const toastEl = document.getElementById("toast");
+let toastTimer
+function showToast(message) {
+    toastEl.textContent = message
+    toastEl.classList.add("show")
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2500)
+}
+
+let fullData = JSON.parse(localStorage.getItem("notes")) || { Total: [], Monthly: [], Daily: [], Temporarily: [] }
 
 let displayingData = "Total"
 let recordingData = ["Total", "Monthly", "Daily"]
@@ -52,30 +74,20 @@ const keyNames = [
 
 function initData() {
 
-    const type = displayingData
+    const c = chartColors()
 
     for (let index = 1; index < 89; index++) {
 
-        let color;
-
-        if ([0, 2, 5, 7, 10].indexOf(index % 12) == -1) {
-            color = "#ebebeb"
-        } else {
-            color = "#262626"
-        }
+        const isBlackKey = [0, 2, 5, 7, 10].includes(index % 12)
 
         data[index] = {
-            value: fullData[type][index] || 0,
-            name: index*2,
-            itemStyle: {
-                color: color
-            }
+            value: fullData[displayingData][index] || 0,
+            itemStyle: { color: isBlackKey ? c.barBlack : c.barWhite }
         }
 
     }
 
     update()
-
     updateInfo()
 
 }
@@ -106,22 +118,7 @@ function update() {
 
 }
 
-navigator.requestMIDIAccess({sysex:false}).then(success, () => {layui.layer.msg("Failed")});
-
-function setupEventHandler() {
-
-    let inputs = [];
-    const iter = midiAccess.inputs.values();
-    for (let o = iter.next(); !o.done; o = iter.next()) {
-        inputs.push(o.value);
-    }
-
-    for (let port = 0; port < inputs.length; port++) {
-        inputs[port].onmidimessage = function() {};
-    }
-
-    midiInputs = inputs;
-}
+navigator.requestMIDIAccess({sysex:false}).then(success, () => {showToast("Failed")});
 
 function success(access) {
 
@@ -133,7 +130,7 @@ function success(access) {
 
         if (port.state == "connected") {
 
-            layui.layer.msg(`MIDI device "${port.name}" connected!`)
+            showToast(`MIDI device "${port.name}" connected!`)
 
             document.querySelector("#bad").style.display = "none"
             document.querySelector("#good").style.display = "flex"
@@ -146,7 +143,6 @@ function success(access) {
             port.onmidimessage = function (event) {
 
                 if (event.data[0] !== 144 || event.data[2] == 0) return;
-                // layui.layer.msg(event.data[1]);
 
                 const note = event.data[1] - DATA_OFFSET;
 
@@ -173,73 +169,7 @@ function success(access) {
         }
 
     };
-
-    setupEventHandler();
 }
-
-//     if (!device) {
-
-//         layui.layer.msg("No MIDI connection found! Refresh the page to try again.")
-
-//         document.querySelector("#bad").style.display = "flex"
-
-//         return
-
-//     } else {
-
-//     }
-
-//     device.addListener("noteon", event => {
-
-//         const note = keyNames.findIndex(i => i.includes(event.note.identifier)) + 1;
-
-//         if (recordingData.includes(displayingData) || displayingData == "Temporarily") {
-
-//             data[note].value ++
-
-//         }
-
-//         for (type of recordingData) {
-
-//             if (!fullData[type][note]) fullData[type][note] = 0
-
-//             fullData[type][note] ++
-
-//         }
-
-//         update()
-
-//         keyDisplay.textContent = event.note.identifier
-
-//     })
-
-//     device.addListener("controlchange", event => {
-
-//         if (event.value) {
-
-//             lastPedal = new Date()
-
-//         } else {
-
-//             for (type of recordingData) {
-
-//                 if (!fullData[type][0]) {
-//                     fullData[type][0] = { pedal: 0, date: 0 }
-//                 }
-
-//                 fullData[type][0].pedal += (new Date() - lastPedal)
-
-//             }
-
-//             updateInfo()
-
-//         }
-
-//         lastNote = new Date()
-
-//     })
-
-// }
 
 function formatTime(milliseconds) {
     if (milliseconds < 60000) {
@@ -289,10 +219,6 @@ function save() {
 
     localStorage.setItem("notes", JSON.stringify(fullData))
 
-    console.log("SAVED!")
-
-    // layui.layer.msg("AUTOSAVED!")
-
 }
 
 function autoSave() {
@@ -323,15 +249,35 @@ const myChart = echarts.init(document.getElementById("chart"), null, {
     useDirtyRect: false
 });
 
+function chartAxisOption() {
+    const c = chartColors()
+    return {
+        xAxis: {
+            type: "category",
+            data: keyNames,
+            axisLine: { lineStyle: { color: c.axisLine } },
+            axisTick: { show: false },
+            axisLabel: { color: c.axisLabel, fontSize: 10, fontFamily: "JetBrains Mono, monospace", interval: 0 }
+        },
+        yAxis: {
+            type: "value",
+            axisLine: { show: false },
+            axisTick: { show: false },
+            axisLabel: { color: c.axisLabel, fontSize: 10, fontFamily: "JetBrains Mono, monospace" },
+            splitLine: { lineStyle: { color: c.split } }
+        },
+        tooltip: {
+            backgroundColor: c.tooltipBg,
+            borderColor: c.tooltipBorder,
+            borderWidth: 1,
+            textStyle: { color: c.tooltipText, fontFamily: "JetBrains Mono, monospace", fontSize: 12 },
+            formatter: (params) => `${params.name.replace(/\n/g, " / ")}<br/><span style="color:${c.tooltipAccent}">${params.value}</span> hits`
+        }
+    }
+}
+
 myChart.setOption({
-    xAxis: {
-        type: "category",
-        data: keyNames
-    },
-    yAxis: {
-        type: "value"
-    },
-    tooltip: {},
+    ...chartAxisOption(),
     series: [
         {
             data: Object.values(data),
@@ -346,10 +292,24 @@ myChart.setOption({
             type: "inside"
         }
     ],
+    grid: {
+        left: 48,
+        right: 24,
+        top: 24,
+        bottom: 48
+    },
     animationDurationUpdate: 300
 })
 
 window.addEventListener("resize", myChart.resize);
+
+document.getElementById("theme-toggle").addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light"
+    document.documentElement.dataset.theme = next
+    localStorage.setItem("theme", next)
+    myChart.setOption(chartAxisOption())
+    initData()
+})
 
 if (localStorage.getItem("selected")) {
     document.querySelector(`option[value="${localStorage.getItem("selected")}"]`).selected = true
@@ -359,67 +319,81 @@ if (localStorage.getItem("selected")) {
 initData()
 checkDate()
 
-layui.use(() => {
+document.querySelectorAll("#record-tags input[type=checkbox]").forEach((box) => {
 
-    const form = layui.form;
+    box.addEventListener("change", () => {
 
-    const layer = layui.layer
+        if (box.checked) {
 
-    form.on('checkbox()', (data) => {
-
-        if (data.elem.checked) {
-
-            recordingData.push(data.elem.title)
+            recordingData.push(box.value)
 
         } else {
 
             recordingData = recordingData.filter((item) => {
-                return item !== data.elem.title;
+                return item !== box.value;
             });
 
         }
 
     })
 
+})
 
-    form.on('select()', (data) => {
+document.querySelectorAll(".check-group input[type=checkbox]").forEach((box) => {
 
-        autoSave()
-
-        displayingData = data.value
-
-        initData()
-
-        // layer.msg("Displaying Dataset: " + displayingData)
-
-        localStorage.setItem("selected", data.value)
-
-    });
-
-    document.querySelector(".layui-btn").addEventListener("click", () => {
-
-        // if (window.confirm(`Are you sure you want to delete all the data?`)) {
-
-            // fullData[displayingData] = []
-
-            fullData = { Total: [], Monthly: [], Daily: [], Temporarily: [], Custom: [] }
-
-            initData()
-
-        // }
-
-    })
+    const stat = document.querySelector(`.stat[data-stat="${box.value}"]`)
+    const apply = () => {
+        stat.style.display = box.checked ? "" : "none"
+        requestAnimationFrame(() => myChart.resize())
+    }
+    box.addEventListener("change", apply)
+    apply()
 
 })
 
+document.getElementById("display-select").addEventListener("change", (event) => {
+
+    autoSave()
+
+    displayingData = event.target.value
+
+    initData()
+
+    localStorage.setItem("selected", event.target.value)
+
+});
+
+document.querySelector(".delete").addEventListener("click", () => {
+
+    fullData = { Total: [], Monthly: [], Daily: [], Temporarily: [] }
+
+    initData()
+
+})
+
+const modalEl = document.getElementById("modal")
+const modalFrame = document.getElementById("modal-frame")
+
+function closeModal() {
+    modalEl.classList.remove("show")
+    modalEl.setAttribute("aria-hidden", "true")
+    modalFrame.src = ""
+}
+
 document.getElementById("help").addEventListener("click", () => {
 
-    layui.layer.open({
-        type: 2,
-        area: ['900px', '600px'],
-        shadeClose: true,
-        content: `/help.html`,
-        title: "Help"
-    });
+    modalFrame.src = `/help.html`
+    modalEl.classList.add("show")
+    modalEl.setAttribute("aria-hidden", "false")
+
+})
+
+modalEl.querySelectorAll("[data-close]").forEach((el) => {
+    el.addEventListener("click", closeModal)
+})
+
+document.addEventListener("keydown", (event) => {
+
+    if (event.key === "Escape" && modalEl.classList.contains("show")) closeModal()
 
 })

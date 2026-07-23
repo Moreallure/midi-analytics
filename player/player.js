@@ -1,6 +1,5 @@
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
-const pedalDisplay = document.getElementById("pedal");
 
 // MIDI note number for A0 (lowest piano key). Piano keys span MIDI 21 (A0) .. 108 (C8).
 const MIDI_A0 = 21
@@ -39,20 +38,11 @@ function initData() {
 
     for (let index = 1; index < 89; index++) {
 
-        let color;
-
-        if ([0, 2, 5, 7, 10].indexOf(index % 12) == -1) {
-            color = "#ebebeb"
-        } else {
-            color = "#262626"
-        }
+        const isBlackKey = [0, 2, 5, 7, 10].includes(index % 12)
 
         data[index] = {
             value: 0,
-            name: index*2,
-            itemStyle: {
-                color: color
-            }
+            itemStyle: { color: isBlackKey ? "#4a525c" : "#d4dbe3" }
         }
 
     }
@@ -77,18 +67,6 @@ function update() {
 
     notesDisplay.textContent = total
 
-    lastNote = new Date()
-
-}
-
-function formatTime(milliseconds) {
-    if (milliseconds < 60000) {
-        return parseFloat((milliseconds / 1000).toFixed(0)) + "s";
-    } else if (milliseconds < 3600000) {
-        return parseFloat((milliseconds / 60000).toFixed(1)) + "m";
-    } else {
-        return parseFloat((milliseconds / 3600000).toFixed(2)) + "h";
-    }
 }
 
 const myChart = echarts.init(document.getElementById("chart"), null, {
@@ -99,19 +77,25 @@ const myChart = echarts.init(document.getElementById("chart"), null, {
 myChart.setOption({
     xAxis: {
         type: "category",
-        data: keyNames
+        data: keyNames,
+        axisLine: { lineStyle: { color: "rgba(255,255,255,0.15)" } },
+        axisTick: { show: false },
+        axisLabel: { color: "#6b7585", fontSize: 10, fontFamily: "JetBrains Mono, monospace", interval: 0 }
     },
     yAxis: {
-        type: "value"
+        type: "value",
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { color: "#6b7585", fontSize: 10, fontFamily: "JetBrains Mono, monospace" },
+        splitLine: { lineStyle: { color: "rgba(255,255,255,0.06)" } }
     },
-    // toolbox: {
-    //     feature: {
-    //         saveAsImage: {
-    //             pixelRatio: 5
-    //         }
-    //     }
-    // },
-    tooltip: {},
+    tooltip: {
+        backgroundColor: "rgba(22,28,35,0.95)",
+        borderColor: "rgba(255,255,255,0.2)",
+        borderWidth: 1,
+        textStyle: { color: "#e8edf2", fontFamily: "JetBrains Mono, monospace", fontSize: 12 },
+        formatter: (params) => `${params.name.replace(/\n/g, " / ")}<br/><span style="color:#fff">${params.value}</span> hits`
+    },
     series: [
         {
             data: Object.values(data),
@@ -126,6 +110,12 @@ myChart.setOption({
             type: "inside"
         }
     ],
+    grid: {
+        left: 48,
+        right: 24,
+        top: 24,
+        bottom: 48
+    },
     animationDurationUpdate: 300
 })
 
@@ -135,9 +125,23 @@ initData()
 
 const musicName = "la-campanella"
 
+let toastEl
+let toastTimer
+function showToast(message) {
+    if (!toastEl) {
+        toastEl = document.createElement("div")
+        toastEl.className = "toast"
+        document.body.appendChild(toastEl)
+    }
+    toastEl.textContent = message
+    toastEl.classList.add("show")
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2500)
+}
+
 MIDI.Player.loadFile(`music/${musicName}.mid`, () => {
 
-    layui.layer.msg(`${musicName}.mid loaded, click anywhere to start`)
+    showToast(`${musicName}.mid loaded, click anywhere to start`)
 
 });
 
