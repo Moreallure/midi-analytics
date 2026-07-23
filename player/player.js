@@ -1,5 +1,7 @@
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
+const musicSelect = document.getElementById("music-select");
+const outputModeSelect = document.getElementById("output-mode-select");
 
 // MIDI note number for A0 (lowest piano key). Piano keys span MIDI 21 (A0) .. 108 (C8).
 const MIDI_A0 = 21
@@ -7,6 +9,9 @@ const MIDI_A0 = 21
 const DATA_OFFSET = MIDI_A0 - 1
 
 let data = []
+let currentMusic = musicSelect ? musicSelect.value : "la-campanella"
+let outputMode = outputModeSelect ? outputModeSelect.value : "audio"
+let midiAccess = null
 
 const keyNames = [
     "A0", "A#0\nBb0", "B0",
@@ -123,8 +128,6 @@ window.addEventListener("resize", myChart.resize);
 
 initData()
 
-const musicName = "la-campanella"
-
 let toastEl
 let toastTimer
 function showToast(message) {
@@ -139,9 +142,59 @@ function showToast(message) {
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2500)
 }
 
-MIDI.Player.loadFile(`music/${musicName}.mid`, () => {
-    showToast(`${musicName}.mid loaded`);
-});
+function setAudioVolume(isMuted) {
+    if (typeof MIDI.setVolume === "function") {
+        MIDI.setVolume(0, isMuted ? 0 : 127);
+    }
+}
+
+async function initWebMidi() {
+    if (!navigator.requestMIDIAccess) {
+        return null;
+    }
+
+    try {
+        midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+        return midiAccess;
+    } catch (error) {
+        midiAccess = null;
+        return null;
+    }
+}
+
+function resetSongState() {
+    MIDI.Player.pause();
+    MIDI.Player.stop();
+    paused = false;
+    setPlaying(false);
+    data = [];
+    initData();
+}
+
+function loadMusic(musicName) {
+    currentMusic = musicName;
+    resetSongState();
+    MIDI.Player.loadFile(`music/${musicName}.mid`, () => {
+        showToast(`${musicName}.mid loaded`);
+    });
+}
+
+function updateOutputMode(nextMode) {
+    outputMode = nextMode;
+    const usingMidi = outputMode === "midi";
+
+    setAudioVolume(usingMidi);
+    if (usingMidi && !midiAccess) initWebMidi();
+}
+
+function sendToMidiOutputs(message, timestamp = window.performance.now()) {
+    if (!midiAccess) return;
+
+    const iter = midiAccess.outputs.values();
+    for (let output = iter.next(); !output.done; output = iter.next()) {
+        output.value.send(message, timestamp);
+    }
+}
 
 const playPauseBtn = document.getElementById("play-pause");
 function setPlaying(playing) {
@@ -167,10 +220,15 @@ playPauseBtn.addEventListener("click", () => {
 });
 
 MIDI.Player.addListener((event) => {
+    const note = event.note
+
+    if (outputMode === "midi" && midiAccess) {
+        const status = event.velocity > 0 ? 0x90 : 0x80;
+        const velocity = Math.max(0, Math.min(127, event.velocity));
+        sendToMidiOutputs([status + (event.channel ?? 0), note, velocity], window.performance.now());
+    }
 
     if (event.velocity == 0) return
-
-    const note = event.note
 
     data[note - DATA_OFFSET].value += 1
 
@@ -183,4 +241,21 @@ MIDI.Player.addListener((event) => {
         setPlaying(false);
     }
 
+});
+
+if (musicSelect) {
+    musicSelect.addEventListener("change", (event) => {
+        loadMusic(event.target.value);
+    });
+}
+
+if (outputModeSelect) {
+    outputModeSelect.addEventListener("change", (event) => {
+        updateOutputMode(event.target.value);
+    });
+}
+
+window.addEventListener("load", () => {
+    loadMusic(currentMusic);
+    initWebMidi();
 });

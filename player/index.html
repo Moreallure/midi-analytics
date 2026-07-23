@@ -33,35 +33,62 @@
             <a class="nav-link nav-link--active" href="/player/">Player</a>
         </nav>
 
-        <button class="icon-btn" id="play-pause" type="button" aria-label="Play">
-            <svg class="icon-play" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5v14l11-7z" fill="currentColor"/>
-            </svg>
-            <svg class="icon-pause" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" fill="currentColor"/>
-            </svg>
-        </button>
+        <div class="topbar__actions">
+            <div class="select-wrap select-wrap--nav">
+                <select id="music-select" aria-label="Select MIDI file">
+                    <option value="la-campanella">La Campanella</option>
+                    <option value="sonata">Sonata</option>
+                    <option value="test">Test</option>
+                </select>
+                <svg class="select-wrap__chevron" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <div class="select-wrap select-wrap--nav">
+                <select id="output-mode-select" aria-label="Select output mode">
+                    <option value="audio">Audio output</option>
+                    <option value="midi">MIDI output</option>
+                </select>
+                <svg class="select-wrap__chevron" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <button class="icon-btn" id="play-pause" type="button" aria-label="Play">
+                <svg class="icon-play" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 5v14l11-7z" fill="currentColor"/>
+                </svg>
+                <svg class="icon-pause" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" fill="currentColor"/>
+                </svg>
+            </button>
+        </div>
 
     </header>
 
     <div id="main">
 
-        <div id="chart"></div>
-
         <div id="info">
-            <span>Notes</span>
-            <p id="notes">0</p>
-            <span>Key</span>
-            <p id="key">_</p>
-            <span>Pedal</span>
-            <p id="pedal"></p>
+            <div class="stat" data-stat="notes">
+                <span>Notes</span>
+                <p id="notes">0</p>
+            </div>
+            <div class="stat" data-stat="key">
+                <span>Key</span>
+                <p id="key">_</p>
+            </div>
+            <div class="stat" data-stat="pedal">
+                <span>Pedal</span>
+                <p id="pedal"></p>
+            </div>
         </div>
+
+        <div id="chart"></div>
 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/midi.js@0.3.1/lib/midi.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.2/math.min.js" integrity="sha512-d35gaU1E+gZdyLbQUGODiOEXqH+Q4pj9BmkFS3xwTrmw7DustRm+tfpfVQaywn9l+qCsd5dsJ4A+11s/OisvFw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
