@@ -25,9 +25,13 @@
     --tooltip-border: rgba(255, 255, 255, 0.2);
     --tooltip-text: #e8edf2;
     --tooltip-accent: #ffffff;
-    --glow-edge: rgba(255, 255, 255, 0.5);
-    --glow-halo: rgba(255, 255, 255, 0.16);
-    --glow-inset: rgba(255, 255, 255, 0.06);
+
+    /* pedal glow - dark mode */
+    --glow-edge: rgba(150, 190, 230, 0.95);
+    --glow-halo: rgba(110, 150, 200, 0.55);
+    --glow-inset: rgba(80, 120, 170, 0.35);
+    --glow-hot: rgba(180, 210, 240, 0.18);
+
     --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
     --font-ui: 'DM Sans', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
@@ -56,9 +60,129 @@
     --tooltip-border: rgba(0, 0, 0, 0.15);
     --tooltip-text: #1a1a1a;
     --tooltip-accent: #000000;
-    --glow-edge: rgba(0, 0, 0, 0.32);
-    --glow-halo: rgba(0, 0, 0, 0.12);
-    --glow-inset: rgba(0, 0, 0, 0.04);
+
+    /* pedal glow - light mode */
+    --glow-edge: rgba(80, 120, 170, 0.85);
+    --glow-halo: rgba(100, 140, 190, 0.45);
+    --glow-inset: rgba(70, 110, 160, 0.25);
+    --glow-hot: rgba(150, 180, 220, 0.15);
+}
+
+body.pedal-active::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+
+    background: transparent;
+
+    box-shadow:
+        inset 0 0 14px var(--glow-edge),
+        inset 0 0 60px var(--glow-halo),
+        inset 0 0 130px var(--glow-inset),
+        inset 0 0 240px var(--glow-hot);
+
+    animation: pedalGlowPulse 0.5s ease-out;
+}body.pedal-active::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+
+    background: transparent;
+
+    box-shadow:
+        inset 0 0 14px var(--glow-edge),
+        inset 0 0 60px var(--glow-halo),
+        inset 0 0 130px var(--glow-inset),
+        inset 0 0 240px var(--glow-hot);
+
+    animation: pedalGlowPulse 0.5s ease-out;
+}body.pedal-active::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+
+    background: transparent;
+
+    box-shadow:
+        inset 0 0 14px var(--glow-edge),
+        inset 0 0 60px var(--glow-halo),
+        inset 0 0 130px var(--glow-inset),
+        inset 0 0 240px var(--glow-hot);
+
+    animation: pedalGlowPulse 0.5s ease-out;
+}body.pedal-active::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+
+    background: transparent;
+
+    box-shadow:
+        inset 0 0 14px var(--glow-edge),
+        inset 0 0 60px var(--glow-halo),
+        inset 0 0 130px var(--glow-inset),
+        inset 0 0 240px var(--glow-hot);
+
+    animation: pedalGlowPulse 0.5s ease-out;
+}body.pedal-active::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+
+    background: transparent;
+
+    box-shadow:
+        inset 0 0 14px var(--glow-edge),
+        inset 0 0 60px var(--glow-halo),
+        inset 0 0 130px var(--glow-inset),
+        inset 0 0 240px var(--glow-hot);
+
+    animation: pedalGlowPulse 0.5s ease-out;
+}
+
+body.pedal-active::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+
+    background: transparent;
+
+    box-shadow:
+        inset 0 0 12px var(--glow-edge),
+        inset 0 0 55px var(--glow-halo),
+        inset 0 0 120px var(--glow-inset),
+        inset 0 0 220px var(--glow-hot);
+
+    animation: pedalGlowPulse 0.5s ease-out;
+}
+
+@keyframes pedalGlowPulse {
+    0% {
+        opacity: 0;
+        filter: brightness(1);
+    }
+
+    30% {
+        opacity: 1;
+        filter: brightness(1.25);
+    }
+
+    100% {
+        opacity: 1;
+        filter: brightness(1);
+    }
 }
 
 * {
@@ -484,13 +608,6 @@ body::after {
     z-index: 50;
     box-shadow: inset 0 0 0 0 transparent;
     transition: box-shadow 0.4s ease;
-}
-
-body.pedal-active::after {
-    box-shadow:
-        inset 0 0 0 1px var(--glow-edge),
-        inset 0 0 60px var(--glow-halo),
-        inset 0 0 180px var(--glow-inset);
 }
 
 #info {
