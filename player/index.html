@@ -29,7 +29,7 @@
         </div>
 
         <nav class="nav-links">
-            <a class="nav-link" href="/">Analytics</a>
+            <a class="nav-link" href="/">Live</a>
             <a class="nav-link nav-link--active" href="/player/">Player</a>
         </nav>
 
@@ -37,8 +37,11 @@
             <div class="select-wrap select-wrap--nav">
                 <select id="music-select" aria-label="Select MIDI file">
                     <option value="la-campanella">La Campanella</option>
-                    <option value="sonata">Sonata</option>
-                    <option value="test">Test</option>
+                    <option value="hungarian-rhapsody-no-2">Hungarian Rhapsody No. 2</option>
+                    <option value="fantaisie-impromptu">Fantaisie Impromptu</option>
+                    <option value="moonlight-sonata">Moonlight Sonata</option>
+                    <option value="liebestraum-no-3">Liebestraum No. 3</option>
+                    <option value="rush-e">Rush E</option>
                 </select>
                 <svg class="select-wrap__chevron" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -54,6 +57,25 @@
                     <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
+
+            <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle theme">
+                <svg class="icon-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="12" y1="2" x2="12" y2="5"/>
+                        <line x1="12" y1="19" x2="12" y2="22"/>
+                        <line x1="2" y1="12" x2="5" y2="12"/>
+                        <line x1="19" y1="12" x2="22" y2="12"/>
+                        <line x1="4.9" y1="4.9" x2="7" y2="7"/>
+                        <line x1="17" y1="17" x2="19.1" y2="19.1"/>
+                        <line x1="4.9" y1="19.1" x2="7" y2="17"/>
+                        <line x1="17" y1="7" x2="19.1" y2="4.9"/>
+                    </g>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+                </svg>
+            </button>
 
             <button class="icon-btn" id="play-pause" type="button" aria-label="Play">
                 <svg class="icon-play" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -78,9 +100,13 @@
                 <span>Key</span>
                 <p id="key">_</p>
             </div>
-            <div class="stat" data-stat="pedal">
-                <span>Pedal</span>
-                <p id="pedal"></p>
+            <div class="stat" data-stat="musical-key">
+                <span>Musical Key</span>
+                <p id="musical-key">—</p>
+            </div>
+            <div class="stat" data-stat="rate">
+                <span>Notes/s</span>
+                <p id="rate">0</p>
             </div>
         </div>
 
@@ -94,6 +120,7 @@
 
     <script src="//unpkg.com/layui@2.9.9/dist/layui.js"></script>
 
+    <script src="/musical-key.js"></script>
     <script src="player.js"></script>
 
 </body>

@@ -1,5 +1,7 @@
 const notesDisplay = document.getElementById("notes");
 const keyDisplay = document.getElementById("key");
+const musicalKeyDisplay = document.getElementById("musical-key");
+const rateDisplay = document.getElementById("rate");
 const musicSelect = document.getElementById("music-select");
 const outputModeSelect = document.getElementById("output-mode-select");
 
@@ -12,6 +14,8 @@ let data = []
 let currentMusic = musicSelect ? musicSelect.value : "la-campanella"
 let outputMode = outputModeSelect ? outputModeSelect.value : "audio"
 let midiAccess = null
+let noteTimes = []
+let musicalKey = window.MusicalKeyEstimator ? new MusicalKeyEstimator() : null
 
 const keyNames = [
     "A0", "A#0\nBb0", "B0",
@@ -72,6 +76,18 @@ function update() {
 
     notesDisplay.textContent = total
 
+}
+
+function updateRate() {
+    const now = Date.now()
+    noteTimes = noteTimes.filter((t) => now - t < 1000)
+    if (rateDisplay) rateDisplay.textContent = noteTimes.length
+}
+
+function resetMusicalKey() {
+    if (!musicalKey || !musicalKeyDisplay) return
+    musicalKey.reset()
+    musicalKeyDisplay.textContent = "—"
 }
 
 const myChart = echarts.init(document.getElementById("chart"), null, {
@@ -169,6 +185,9 @@ function resetSongState() {
     setPlaying(false);
     data = [];
     initData();
+    noteTimes = [];
+    updateRate();
+    resetMusicalKey();
 }
 
 function loadMusic(musicName) {
@@ -234,6 +253,15 @@ MIDI.Player.addListener((event) => {
 
     keyDisplay.textContent = keyNames[note - DATA_OFFSET - 1].split("\n")[0]
 
+    if (musicalKey) {
+        musicalKey.addNote(note)
+        const est = musicalKey.estimate()
+        if (est && musicalKeyDisplay) musicalKeyDisplay.textContent = est
+    }
+
+    noteTimes.push(Date.now())
+    updateRate()
+
     update()
 
     if (event.end && event.now >= event.end) {
@@ -259,3 +287,12 @@ window.addEventListener("load", () => {
     loadMusic(currentMusic);
     initWebMidi();
 });
+
+const themeToggle = document.getElementById("theme-toggle");
+if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+        const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem("theme", next);
+    });
+}
