@@ -2,7 +2,7 @@
 
 A browser-based MIDI visualizer and practice tracker. It shows which of the 88 piano keys you play and how often, and can play back built-in MIDI files through your browser or your keyboard.
 
-**Live site: [midianalytics.neetlify.app](https://midianalytics.neetlify.app)**
+**Live site: [midianalytics.netlify.app](https://midianalytics.netlify.app)**
 
 ## Live Mode
 
